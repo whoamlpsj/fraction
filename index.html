@@ -6,7 +6,7 @@
     <title>넝쿨째 굴러온 분수</title>
     <!-- Tailwind CSS 로드 -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 구글 폰트: Gamja Flower (아기자기한 손글씨 느낌) & Jua -->
+    <!-- 구글 폰트: Gamja Flower & Jua -->
     <link href="https://fonts.googleapis.com/css2?family=Gamja+Flower&family=Jua&display=swap" rel="stylesheet">
     <style>
         body {
@@ -29,87 +29,215 @@
 </head>
 <body class="autumn-bg min-h-screen flex flex-col items-center justify-between text-amber-950 p-4 select-none">
 
-    <!-- 상단 타이틀 및 설명 -->
-    <header class="w-full max-w-2xl text-center mt-4 bg-amber-100/90 backdrop-blur-md rounded-3xl p-6 shadow-xl border-4 border-amber-300">
-        <h1 class="text-4xl md:text-5xl font-extrabold text-amber-900 drop-shadow-sm mb-2">🎃 넝쿨째 굴러온 분수 🍂</h1>
-        <p class="text-lg md:text-xl text-amber-800 handwriting">주사위를 굴려 분모와 분자를 만들고, 진분수와 가분수를 맞춰보세요!</p>
+    <!-- 상단 타이틀 및 홈 이동 버튼 -->
+    <header class="w-full max-w-5xl text-center mt-2 bg-amber-100/90 backdrop-blur-md rounded-3xl p-4 shadow-xl border-4 border-amber-300 relative flex flex-col items-center">
+        <button id="home-btn" onclick="goHome()" class="absolute left-6 top-4 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold shadow-md transition hidden cursor-pointer">
+            🏠 홈으로
+        </button>
+        <h1 class="text-2xl md:text-4xl font-extrabold text-amber-900 drop-shadow-sm mb-1">🎃 넝쿨째 굴러온 분수 🍂</h1>
+        <p id="header-desc" class="text-sm md:text-lg text-amber-800 handwriting">수학 호박밭에서 즐기는 신나는 분수 모험!</p>
     </header>
 
-    <!-- 메인 게임 화면 -->
-    <main class="w-full max-w-2xl bg-amber-50/95 backdrop-blur-md rounded-3xl p-6 md:p-8 shadow-2xl border-4 border-amber-200 my-6 flex flex-col items-center">
+    <!-- 메인 컨테이너 (태블릿 가로 최적화 넓이) -->
+    <main class="w-full max-w-5xl bg-amber-50/95 backdrop-blur-md rounded-3xl p-6 shadow-2xl border-4 border-amber-200 my-4 flex flex-col items-center">
         
-        <!-- 점수 및 상태 표시바 -->
-        <div class="w-full flex justify-between items-center bg-amber-200/60 px-6 py-3 rounded-2xl mb-8 border border-amber-300">
-            <div class="text-xl md:text-2xl text-amber-900 font-bold">
-                ⭐ 점수: <span id="score" class="text-amber-600 text-3xl">0</span>점
+        <!-- ================= 홈 화면 ================= -->
+        <div id="screen-home" class="w-full flex flex-col items-center space-y-6 py-6">
+            <div class="text-center mb-4">
+                <h2 class="text-2xl md:text-3xl font-extrabold text-amber-900 mb-2">놀이 모드를 선택해 주세요!</h2>
+                <p class="text-amber-800 handwriting text-lg">어떤 호박 농장 놀이를 해볼까요?</p>
             </div>
-            <div class="text-lg text-amber-800 font-medium">
-                ⏳ 남은 시간: <span id="timer" class="text-rose-600 font-bold text-2xl">03:00</span>
-            </div>
-        </div>
-
-        <!-- 주사위 시각화 영역 -->
-        <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <!-- 분모 주사위 (2개) -->
-            <div class="bg-amber-100/80 rounded-2xl p-5 border-2 border-amber-300 flex flex-col items-center shadow-inner">
-                <span class="text-amber-900 font-bold mb-3 text-lg">1단계: 분모 (주사위 2개 합)</span>
-                <div class="flex space-x-3">
-                    <div id="denominator-dice-1" class="w-16 h-16 bg-white rounded-xl shadow-md border-2 border-amber-400 flex items-center justify-center text-2xl font-bold text-amber-800">
-                        🎲
-                    </div>
-                    <div id="denominator-dice-2" class="w-16 h-16 bg-white rounded-xl shadow-md border-2 border-amber-400 flex items-center justify-center text-2xl font-bold text-amber-800">
-                        🎲
-                    </div>
+            
+            <button onclick="startMode(1)" class="w-full max-w-lg p-6 bg-gradient-to-r from-orange-400 to-amber-500 hover:from-orange-500 hover:to-amber-600 text-white rounded-2xl shadow-xl transform transition hover:-translate-y-1 border-b-4 border-amber-800 text-left cursor-pointer flex items-center space-x-4">
+                <span class="text-4xl">🎨</span>
+                <div>
+                    <h3 class="text-2xl font-bold">1게임: 분수 색칠하기</h3>
+                    <p class="text-amber-100 text-sm handwriting">그림을 직접 분할하고 색칠하며 진분수 익히기</p>
                 </div>
-                <span id="denominator-text" class="mt-3 text-amber-800 font-semibold text-xl">분모: ?</span>
-            </div>
-
-            <!-- 분자 주사위 (2개) -->
-            <div class="bg-amber-100/80 rounded-2xl p-5 border-2 border-amber-300 flex flex-col items-center shadow-inner">
-                <span class="text-amber-900 font-bold mb-3 text-lg">2단계: 분자 (주사위 2개 합)</span>
-                <div class="flex space-x-3">
-                    <div id="numerator-dice-1" class="w-16 h-16 bg-white rounded-xl shadow-md border-2 border-amber-400 flex items-center justify-center text-2xl font-bold text-amber-800">
-                        🎲
-                    </div>
-                    <div id="numerator-dice-2" class="w-16 h-16 bg-white rounded-xl shadow-md border-2 border-amber-400 flex items-center justify-center text-2xl font-bold text-amber-800">
-                        🎲
-                    </div>
-                </div>
-                <span id="numerator-text" class="mt-3 text-amber-800 font-semibold text-xl">분자: ?</span>
-            </div>
-        </div>
-
-        <!-- 완성된 분수 표시 카드 -->
-        <div id="fraction-display-card" class="w-full bg-gradient-to-r from-amber-200 to-orange-200 rounded-3xl p-6 text-center mb-8 shadow-inner border-2 border-amber-300 hidden">
-            <p class="text-amber-800 text-lg mb-2 font-medium">완성된 호박 분수:</p>
-            <div class="flex justify-center items-center">
-                <div class="inline-flex flex-col items-center justify-center px-6 py-2 bg-white/80 rounded-2xl shadow-md border border-amber-300">
-                    <span id="numerator-val" class="text-4xl md:text-5xl font-black text-amber-900 pb-1 border-b-4 border-amber-800 w-full text-center">?</span>
-                    <span id="denominator-val" class="text-4xl md:text-5xl font-black text-amber-900 pt-1">?</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- 액션 버튼 영역 -->
-        <div id="action-area" class="w-full flex flex-col items-center">
-            <!-- 주사위 굴리기 버튼 -->
-            <button id="roll-btn" onclick="startRolling()" class="w-full md:w-auto px-10 py-4 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white text-2xl font-bold rounded-2xl shadow-xl transform transition hover:-translate-y-1 active:translate-y-0 border-b-4 border-amber-800 cursor-pointer">
-                🎲 주사위 굴려라!
             </button>
 
-            <!-- 진분수 / 가분수 판별 버튼 (처음엔 숨김) -->
-            <div id="choice-buttons" class="w-full grid grid-cols-2 gap-4 hidden">
-                <button onclick="checkAnswer('진분수')" class="py-4 bg-emerald-500 hover:bg-emerald-600 text-white text-2xl font-bold rounded-2xl shadow-xl transform transition hover:-translate-y-1 active:translate-y-0 border-b-4 border-emerald-800 cursor-pointer flex items-center justify-center space-x-2">
-                    <span>🌱 진분수</span>
-                </button>
-                <button onclick="checkAnswer('가분수')" class="py-4 bg-rose-500 hover:bg-rose-600 text-white text-2xl font-bold rounded-2xl shadow-xl transform transition hover:-translate-y-1 active:translate-y-0 border-b-4 border-rose-800 cursor-pointer flex items-center justify-center space-x-2">
-                    <span>🎃 가분수</span>
-                </button>
+            <button onclick="startMode(2)" class="w-full max-w-lg p-6 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-2xl shadow-xl transform transition hover:-translate-y-1 border-b-4 border-amber-900 text-left cursor-pointer flex items-center space-x-4">
+                <span class="text-4xl">🎃</span>
+                <div>
+                    <h3 class="text-2xl font-bold">2게임: 진진가를 찾아라</h3>
+                    <p class="text-amber-100 text-sm handwriting">주사위 2개씩 굴려 진분수와 가분수 판별 타임어택!</p>
+                </div>
+            </button>
+        </div>
+
+        <!-- ================= 1게임: 분수 색칠하기 (태블릿 가로 2열 레이아웃) ================= -->
+        <div id="screen-game1" class="w-full flex flex-col hidden">
+            <!-- 상단 정보 바 -->
+            <div class="w-full flex justify-between items-center bg-amber-200/60 px-6 py-3 rounded-2xl mb-4 border border-amber-300">
+                <div class="text-lg md:text-xl text-amber-900 font-bold">
+                    🎨 분수 색칠하기 (진분수)
+                </div>
+                <div class="text-lg text-amber-800 font-bold">
+                    ⭐ 맞춘 횟수: <span id="game1-score" class="text-amber-600 text-2xl">0</span>회
+                </div>
+            </div>
+
+            <!-- 태블릿 가로 최적화 좌우 2열 배치 -->
+            <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                
+                <!-- 왼쪽 영역: 목표 및 시각화 그림 (원형 & 가로 막대) -->
+                <div class="lg:col-span-7 flex flex-col space-y-4">
+                    <!-- 미션 안내판 -->
+                    <div class="w-full bg-amber-100/90 rounded-2xl p-4 text-center border-2 border-amber-300 shadow-inner">
+                        <p id="game1-instruction" class="text-base md:text-lg font-bold text-amber-900 mb-1">
+                            목표 분수를 보고 원과 막대를 알맞게 색칠해 보세요!
+                        </p>
+                        <div class="text-3xl font-black text-orange-600 my-1" id="target-fraction-display">
+                            목표: 3/4
+                        </div>
+                        <p id="game1-sub-guide" class="text-xs md:text-sm text-amber-700 font-medium">
+                            숫자패드로 분모와 분자를 입력 후 그림을 클릭하세요.
+                        </p>
+                    </div>
+
+                    <!-- 그림 시각화 영역 (원형 조각 & 가로형 막대) -->
+                    <div class="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 items-center justify-items-center">
+                        <!-- 원형 분수 시각화 (SVG로 부채꼴 분할선 명확히 표현) -->
+                        <div class="bg-white/90 p-4 rounded-2xl shadow-md border-2 border-amber-300 flex flex-col items-center w-full max-w-[220px]">
+                            <span class="text-sm font-bold text-amber-800 mb-2">원형 조각</span>
+                            <div id="pie-container" class="relative w-40 h-40 rounded-full border-4 border-amber-700 overflow-hidden bg-amber-50 cursor-pointer shadow-inner flex items-center justify-center">
+                                <!-- 동적 SVG 생성 -->
+                            </div>
+                        </div>
+
+                        <!-- 가로형 막대 분수 시각화 -->
+                        <div class="bg-white/90 p-4 rounded-2xl shadow-md border-2 border-amber-300 flex flex-col items-center w-full max-w-[260px]">
+                            <span class="text-sm font-bold text-amber-800 mb-2">가로 막대 조각</span>
+                            <div id="bar-container" class="w-full h-16 border-4 border-amber-700 rounded-xl overflow-hidden bg-amber-50 flex flex-row cursor-pointer shadow-inner my-6">
+                                <!-- 동적 생성 -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 입력 상태 안내 -->
+                    <div class="w-full text-center">
+                        <p id="input-status-guide" class="text-rose-600 font-bold text-base min-h-[24px]">
+                            먼저 분모(1~12)를 입력해주세요.
+                        </p>
+                        <div class="text-xl font-bold text-amber-900 mt-1">
+                            입력 중인 분수: <span id="current-input-fraction" class="text-orange-600 text-2xl">- / -</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 오른쪽 영역: 숫자패드 및 컨트롤 버튼 -->
+                <div class="lg:col-span-5 flex flex-col bg-amber-200/40 p-5 rounded-3xl border-2 border-amber-300 shadow-inner justify-between">
+                    <div>
+                        <div class="text-center font-bold text-amber-900 mb-3 text-lg">🔢 숫자 패드</div>
+                        <!-- 숫자 패드 (1 ~ 12) -->
+                        <div class="grid grid-cols-4 gap-2 mb-4">
+                            <button onclick="pressPad(1)" class="py-3 bg-white hover:bg-amber-100 text-amber-900 text-xl font-bold rounded-xl shadow border border-amber-300 cursor-pointer active:bg-amber-300">1</button>
+                            <button onclick="pressPad(2)" class="py-3 bg-white hover:bg-amber-100 text-amber-900 text-xl font-bold rounded-xl shadow border border-amber-300 cursor-pointer active:bg-amber-300">2</button>
+                            <button onclick="pressPad(3)" class="py-3 bg-white hover:bg-amber-100 text-amber-900 text-xl font-bold rounded-xl shadow border border-amber-300 cursor-pointer active:bg-amber-300">3</button>
+                            <button onclick="pressPad(4)" class="py-3 bg-white hover:bg-amber-100 text-amber-900 text-xl font-bold rounded-xl shadow border border-amber-300 cursor-pointer active:bg-amber-300">4</button>
+                            <button onclick="pressPad(5)" class="py-3 bg-white hover:bg-amber-100 text-amber-900 text-xl font-bold rounded-xl shadow border border-amber-300 cursor-pointer active:bg-amber-300">5</button>
+                            <button onclick="pressPad(6)" class="py-3 bg-white hover:bg-amber-100 text-amber-900 text-xl font-bold rounded-xl shadow border border-amber-300 cursor-pointer active:bg-amber-300">6</button>
+                            <button onclick="pressPad(7)" class="py-3 bg-white hover:bg-amber-100 text-amber-900 text-xl font-bold rounded-xl shadow border border-amber-300 cursor-pointer active:bg-amber-300">7</button>
+                            <button onclick="pressPad(8)" class="py-3 bg-white hover:bg-amber-100 text-amber-900 text-xl font-bold rounded-xl shadow border border-amber-300 cursor-pointer active:bg-amber-300">8</button>
+                            <button onclick="pressPad(9)" class="py-3 bg-white hover:bg-amber-100 text-amber-900 text-xl font-bold rounded-xl shadow border border-amber-300 cursor-pointer active:bg-amber-300">9</button>
+                            <button onclick="pressPad(10)" class="py-3 bg-white hover:bg-amber-100 text-amber-900 text-xl font-bold rounded-xl shadow border border-amber-300 cursor-pointer active:bg-amber-300">10</button>
+                            <button onclick="pressPad(11)" class="py-3 bg-white hover:bg-amber-100 text-amber-900 text-xl font-bold rounded-xl shadow border border-amber-300 cursor-pointer active:bg-amber-300">11</button>
+                            <button onclick="pressPad(12)" class="py-3 bg-white hover:bg-amber-100 text-amber-900 text-xl font-bold rounded-xl shadow border border-amber-300 cursor-pointer active:bg-amber-300">12</button>
+                        </div>
+                    </div>
+
+                    <!-- 컨트롤 버튼 영역 -->
+                    <div class="flex space-x-3 mt-2">
+                        <button onclick="resetGame1Input()" class="flex-1 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-2xl shadow cursor-pointer">
+                            초기화
+                        </button>
+                        <button onclick="checkGame1Answer()" class="flex-2 py-3 bg-orange-600 hover:bg-orange-700 text-white text-xl font-bold rounded-2xl shadow-xl cursor-pointer">
+                            도전! 🎯
+                        </button>
+                    </div>
+                    
+                    <div id="game1-feedback" class="mt-3 text-lg font-bold h-7 text-center"></div>
+                </div>
+
             </div>
         </div>
 
-        <!-- 피드백 메시지 영역 -->
-        <div id="feedback-msg" class="mt-6 text-xl md:text-2xl font-bold text-center h-10"></div>
+        <!-- ================= 2게임: 진진가를 찾아라 (태블릿 가로 최적화) ================= -->
+        <div id="screen-game2" class="w-full flex flex-col items-center hidden">
+            <!-- 점수 및 상태 표시바 -->
+            <div class="w-full flex justify-between items-center bg-amber-200/60 px-6 py-3 rounded-2xl mb-6 border border-amber-300">
+                <div class="text-xl md:text-2xl text-amber-900 font-bold">
+                    ⭐ 점수: <span id="score" class="text-amber-600 text-3xl">0</span>점
+                </div>
+                <div class="text-lg text-amber-800 font-medium">
+                    ⏳ 남은 시간: <span id="timer" class="text-rose-600 font-bold text-2xl">03:00</span>
+                </div>
+            </div>
+
+            <!-- 주사위 시각화 영역 (2개씩 총 4개) -->
+            <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- 분모 주사위 (2개) -->
+                <div class="bg-amber-100/80 rounded-2xl p-4 border-2 border-amber-300 flex flex-col items-center shadow-inner">
+                    <span class="text-amber-900 font-bold mb-2 text-base">1단계: 분모 (주사위 2개 합)</span>
+                    <div class="flex space-x-3">
+                        <div id="denominator-dice-1" class="w-14 h-14 bg-white rounded-xl shadow-md border-2 border-amber-400 flex items-center justify-center text-2xl font-bold text-amber-800">
+                            🎲
+                        </div>
+                        <div id="denominator-dice-2" class="w-14 h-14 bg-white rounded-xl shadow-md border-2 border-amber-400 flex items-center justify-center text-2xl font-bold text-amber-800">
+                            🎲
+                        </div>
+                    </div>
+                    <span id="denominator-text" class="mt-2 text-amber-800 font-semibold text-lg">분모: ?</span>
+                </div>
+
+                <!-- 분자 주사위 (2개) -->
+                <div class="bg-amber-100/80 rounded-2xl p-4 border-2 border-amber-300 flex flex-col items-center shadow-inner">
+                    <span class="text-amber-900 font-bold mb-2 text-base">2단계: 분자 (주사위 2개 합)</span>
+                    <div class="flex space-x-3">
+                        <div id="numerator-dice-1" class="w-14 h-14 bg-white rounded-xl shadow-md border-2 border-amber-400 flex items-center justify-center text-2xl font-bold text-amber-800">
+                            🎲
+                        </div>
+                        <div id="numerator-dice-2" class="w-14 h-14 bg-white rounded-xl shadow-md border-2 border-amber-400 flex items-center justify-center text-2xl font-bold text-amber-800">
+                            🎲
+                        </div>
+                    </div>
+                    <span id="numerator-text" class="mt-2 text-amber-800 font-semibold text-lg">분자: ?</span>
+                </div>
+            </div>
+
+            <!-- 완성된 분수 표시 카드 -->
+            <div id="fraction-display-card" class="w-full max-w-md bg-gradient-to-r from-amber-200 to-orange-200 rounded-3xl p-5 text-center mb-6 shadow-inner border-2 border-amber-300 hidden">
+                <p class="text-amber-800 text-base mb-1 font-medium">완성된 호박 분수:</p>
+                <div class="flex justify-center items-center">
+                    <div class="inline-flex flex-col items-center justify-center px-6 py-2 bg-white/80 rounded-2xl shadow-md border border-amber-300">
+                        <span id="numerator-val" class="text-3xl md:text-4xl font-black text-amber-900 pb-1 border-b-4 border-amber-800 w-full text-center">?</span>
+                        <span id="denominator-val" class="text-3xl md:text-4xl font-black text-amber-900 pt-1">?</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 액션 버튼 영역 -->
+            <div id="action-area" class="w-full flex flex-col items-center">
+                <!-- 주사위 굴리기 버튼 -->
+                <button id="roll-btn" onclick="startRolling()" class="px-10 py-4 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white text-2xl font-bold rounded-2xl shadow-xl transform transition hover:-translate-y-1 active:translate-y-0 border-b-4 border-amber-800 cursor-pointer">
+                    🎲 주사위 굴려라!
+                </button>
+
+                <!-- 진분수 / 가분수 판별 버튼 -->
+                <div id="choice-buttons" class="w-full max-w-lg grid grid-cols-2 gap-4 hidden">
+                    <button onclick="checkAnswer('진분수')" class="py-4 bg-emerald-500 hover:bg-emerald-600 text-white text-2xl font-bold rounded-2xl shadow-xl transform transition hover:-translate-y-1 active:translate-y-0 border-b-4 border-emerald-800 cursor-pointer flex items-center justify-center space-x-2">
+                        <span>🌱 진분수</span>
+                    </button>
+                    <button onclick="checkAnswer('가분수')" class="py-4 bg-rose-500 hover:bg-rose-600 text-white text-2xl font-bold rounded-2xl shadow-xl transform transition hover:-translate-y-1 active:translate-y-0 border-b-4 border-rose-800 cursor-pointer flex items-center justify-center space-x-2">
+                        <span>🎃 가분수</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 피드백 메시지 영역 -->
+            <div id="feedback-msg" class="mt-4 text-xl md:text-2xl font-bold text-center h-10"></div>
+        </div>
+
     </main>
 
     <!-- 커스텀 알림/결과 모달 -->
@@ -117,29 +245,225 @@
         <div class="bg-amber-50 rounded-3xl p-8 max-w-md w-full text-center border-4 border-amber-400 shadow-2xl">
             <h2 id="modal-title" class="text-3xl font-extrabold text-amber-900 mb-4">시간 종료!</h2>
             <p id="modal-desc" class="text-xl text-amber-800 mb-6 handwriting">수고하셨습니다!</p>
-            <button onclick="resetGame()" class="w-full py-3 bg-amber-600 hover:bg-amber-700 text-white text-xl font-bold rounded-2xl shadow-lg cursor-pointer">
-                다시 시작하기 🍂
+            <button onclick="closeModalAndGoHome()" class="w-full py-3 bg-amber-600 hover:bg-amber-700 text-white text-xl font-bold rounded-2xl shadow-lg cursor-pointer">
+                홈으로 돌아가기 🍂
             </button>
         </div>
     </div>
 
     <!-- 푸터 -->
-    <footer class="text-amber-200/80 text-sm mb-2">
-        가을 호박밭에서 즐기는 3분 분수 타임어택 🎃
+    <footer class="text-amber-200/80 text-xs mb-1">
+        넝쿨째 굴러온 분수 - 3학년 수학 학습 앱 🎃
     </footer>
 
     <!-- 게임 로직 JavaScript -->
     <script>
+        const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+        let currentMode = 0;
+
+        // --- 공통 화면 전환 기능 ---
+        function goHome() {
+            if (timerInterval) clearInterval(timerInterval);
+            currentMode = 0;
+            document.getElementById('screen-home').classList.remove('hidden');
+            document.getElementById('screen-game1').classList.add('hidden');
+            document.getElementById('screen-game2').classList.add('hidden');
+            document.getElementById('home-btn').classList.add('hidden');
+            document.getElementById('header-desc').innerText = "수학 호박밭에서 즐기는 신나는 분수 모험!";
+            document.getElementById('modal').classList.add('hidden');
+        }
+
+        function startMode(mode) {
+            currentMode = mode;
+            document.getElementById('screen-home').classList.add('hidden');
+            document.getElementById('home-btn').classList.remove('hidden');
+
+            if (mode === 1) {
+                document.getElementById('screen-game1').classList.remove('hidden');
+                document.getElementById('header-desc').innerText = "1게임: 분수 색칠하기 (진분수)";
+                initGame1();
+            } else if (mode === 2) {
+                document.getElementById('screen-game2').classList.remove('hidden');
+                document.getElementById('header-desc').innerText = "2게임: 진진가를 찾아라 (타임어택)";
+                initGame2();
+            }
+        }
+
+        // ================= 1게임 로직 =================
+        let g1TargetNum = 1;
+        let g1TargetDen = 3;
+        let g1InputDenominator = 0;
+        let g1InputNumerator = 0;
+        let g1SelectedSlices = []; 
+        let g1Score = 0;
+
+        function initGame1() {
+            g1Score = 0;
+            document.getElementById('game1-score').innerText = g1Score;
+            generateNewGame1Target();
+        }
+
+        function generateNewGame1Target() {
+            g1TargetDen = Math.floor(Math.random() * 7) + 2; // 2~8
+            g1TargetNum = Math.floor(Math.random() * (g1TargetDen - 1)) + 1; // 1 ~ den-1
+
+            document.getElementById('target-fraction-display').innerText = `목표 분수: ${g1TargetNum} / ${g1TargetDen}`;
+            resetGame1Input();
+        }
+
+        function resetGame1Input() {
+            g1InputDenominator = 0;
+            g1InputNumerator = 0;
+            g1SelectedSlices = [];
+            updateGame1DisplayEmpty();
+            document.getElementById('input-status-guide').innerText = "먼저 분모(1~12) 숫자를 입력해주세요.";
+            document.getElementById('current-input-fraction').innerText = "- / -";
+            document.getElementById('game1-feedback').innerText = "";
+        }
+
+        function updateGame1DisplayEmpty() {
+            const pieContainer = document.getElementById('pie-container');
+            pieContainer.innerHTML = '<div class="text-amber-700 text-xs text-center font-medium">분모를 입력하세요</div>';
+            
+            const barContainer = document.getElementById('bar-container');
+            barContainer.innerHTML = '<div class="w-full flex items-center justify-center text-amber-700 text-xs font-medium">분모를 입력하세요</div>';
+        }
+
+        function pressPad(num) {
+            if (currentMode !== 1) return;
+
+            // 1단계: 분모 입력
+            if (g1InputDenominator === 0) {
+                g1InputDenominator = num;
+                document.getElementById('input-status-guide').innerText = "분모의 숫자보다 작은 숫자를 분자로 입력하세요.";
+                document.getElementById('current-input-fraction').innerText = `${g1InputNumerator} / ${g1InputDenominator}`;
+                renderVisualShapes(g1InputDenominator);
+            } 
+            // 2단계: 분자 입력
+            else {
+                if (num >= g1InputDenominator) {
+                    document.getElementById('input-status-guide').innerText = `⚠️ 진분수이므로 분모(${g1InputDenominator})보다 작은 숫자를 입력하세요!`;
+                    return;
+                }
+                g1InputNumerator = num;
+                document.getElementById('input-status-guide').innerText = `그림에서 조각을 ${g1InputNumerator}개 색칠한 뒤 '도전!'을 누르세요.`;
+                document.getElementById('current-input-fraction').innerText = `${g1InputNumerator} / ${g1InputDenominator}`;
+            }
+        }
+
+        function renderVisualShapes(den) {
+            // 원형 렌더링 (SVG를 이용해 조각 선이 명확히 보이도록 구현)
+            const pieContainer = document.getElementById('pie-container');
+            pieContainer.innerHTML = '';
+            
+            let svgHtml = `<svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">`;
+            const center = 50;
+            const radius = 50;
+            
+            for (let i = 0; i < den; i++) {
+                const startAngle = (i * 360) / den;
+                const endAngle = ((i + 1) * 360) / den;
+                
+                const x1 = center + radius * Math.cos((startAngle * Math.PI) / 180);
+                const y1 = center + radius * Math.sin((startAngle * Math.PI) / 180);
+                const x2 = center + radius * Math.cos((endAngle * Math.PI) / 180);
+                const y2 = center + radius * Math.sin((endAngle * Math.PI) / 180);
+                
+                const largeArcFlag = den === 1 ? 1 : (360 / den > 180 ? 1 : 0);
+                const pathData = `M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
+                
+                svgHtml += `<path id="pie-slice-${i}" d="${pathData}" fill="transparent" stroke="#b45309" stroke-width="1.5" class="cursor-pointer transition hover:opacity-80" onclick="toggleSlice(${i})"></path>`;
+            }
+            svgHtml += `</svg>`;
+            pieContainer.innerHTML = svgHtml;
+
+            // 가로 막대 렌더링
+            const barContainer = document.getElementById('bar-container');
+            barContainer.innerHTML = '';
+
+            for (let i = 0; i < den; i++) {
+                const barSlice = document.createElement('div');
+                barSlice.className = `flex-1 border-r last:border-r-0 border-amber-700 bg-amber-50 cursor-pointer transition hover:bg-amber-100`;
+                barSlice.onclick = () => toggleSlice(i);
+                barSlice.id = `bar-slice-${i}`;
+                barContainer.appendChild(barSlice);
+            }
+            g1SelectedSlices = [];
+        }
+
+        function toggleSlice(index) {
+            if (g1InputDenominator === 0) {
+                document.getElementById('input-status-guide').innerText = "먼저 숫자패드로 분모와 분자를 입력해주세요!";
+                return;
+            }
+
+            const idx = g1SelectedSlices.indexOf(index);
+            const pieElem = document.getElementById(`pie-slice-${index}`);
+            const barElem = document.getElementById(`bar-slice-${index}`);
+
+            if (idx > -1) {
+                g1SelectedSlices.splice(idx, 1);
+                if (pieElem) pieElem.setAttribute('fill', 'transparent');
+                if (barElem) barElem.style.backgroundColor = '#fdfbf7';
+            } else {
+                g1SelectedSlices.push(index);
+                if (pieElem) pieElem.setAttribute('fill', '#fb923c'); // 호박 주황색
+                if (barElem) barElem.style.backgroundColor = '#fb923c';
+            }
+        }
+
+        function checkGame1Answer() {
+            const feedback = document.getElementById('game1-feedback');
+            
+            if (g1InputDenominator === 0 || g1InputNumerator === 0) {
+                feedback.innerHTML = `<span class="text-rose-600">분모와 분자를 모두 입력하고 조각을 색칠해주세요!</span>`;
+                return;
+            }
+
+            const isFractionCorrect = (g1InputDenominator === g1TargetDen && g1InputNumerator === g1TargetNum);
+            const isColorCorrect = (g1SelectedSlices.length === g1TargetNum);
+
+            if (isFractionCorrect && isColorCorrect) {
+                g1Score++;
+                document.getElementById('game1-score').innerText = g1Score;
+                feedback.innerHTML = `<span class="text-emerald-700">🎉 정답입니다! 멋지게 진분수를 표현했어요!</span>`;
+                setTimeout(() => {
+                    generateNewGame1Target();
+                }, 1500);
+            } else {
+                feedback.innerHTML = `<span class="text-rose-700">앗, 다시 확인해보세요! 목표 분수와 색칠한 조각 개수를 맞춰봐요.</span>`;
+            }
+        }
+
+
+        // ================= 2게임 로직 (진진가를 찾아라) =================
         let score = 0;
-        let timeLeft = 180; // 3분 = 180초
+        let timeLeft = 180;
         let timerInterval = null;
         let isGameStarted = false;
         let currentNumerator = 0;
         let currentDenominator = 0;
         let isWaitingForAnswer = false;
 
-        // 주사위 이모지 매핑
-        const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+        function initGame2() {
+            score = 0;
+            timeLeft = 180;
+            isGameStarted = false;
+            isWaitingForAnswer = false;
+            document.getElementById('score').innerText = score;
+            updateTimerDisplay();
+            
+            document.getElementById('roll-btn').classList.remove('hidden');
+            document.getElementById('choice-buttons').classList.add('hidden');
+            document.getElementById('fraction-display-card').classList.add('hidden');
+            document.getElementById('denominator-text').innerText = `분모: ?`;
+            document.getElementById('numerator-text').innerText = `분자: ?`;
+            document.getElementById('denominator-dice-1').innerText = '🎲';
+            document.getElementById('denominator-dice-2').innerText = '🎲';
+            document.getElementById('numerator-dice-1').innerText = '🎲';
+            document.getElementById('numerator-dice-2').innerText = '🎲';
+            document.getElementById('feedback-msg').innerText = "";
+        }
 
         function startTimer() {
             if (timerInterval) clearInterval(timerInterval);
@@ -149,7 +473,7 @@
                     updateTimerDisplay();
                 } else {
                     clearInterval(timerInterval);
-                    endGame();
+                    endGame2();
                 }
             }, 1000);
         }
@@ -164,7 +488,6 @@
         function startRolling() {
             if (isWaitingForAnswer) return;
 
-            // 게임 첫 시작 시 타이머 작동
             if (!isGameStarted) {
                 isGameStarted = true;
                 startTimer();
@@ -178,10 +501,8 @@
             rollBtn.classList.add('hidden');
             fractionCard.classList.remove('hidden');
 
-            // 애니메이션 효과를 위한 카운트다운 타이머 시뮬레이션
             let step = 0;
             const animateInterval = setInterval(() => {
-                // 임시 랜덤 값 표시
                 document.getElementById('denominator-dice-1').innerText = diceFaces[Math.floor(Math.random() * 6)];
                 document.getElementById('denominator-dice-2').innerText = diceFaces[Math.floor(Math.random() * 6)];
                 document.getElementById('numerator-dice-1').innerText = diceFaces[Math.floor(Math.random() * 6)];
@@ -196,22 +517,18 @@
         }
 
         function finalizeRoll() {
-            // 1. 분모 주사위 2개 굴리기 (각 1~6, 합산 2~12)
             const d_den1 = Math.floor(Math.random() * 6) + 1;
             const d_den2 = Math.floor(Math.random() * 6) + 1;
             currentDenominator = d_den1 + d_den2;
             
-            // 2. 분자 주사위 2개 굴리기 (각 1~6, 합산 2~12)
             const d_num1 = Math.floor(Math.random() * 6) + 1;
             const d_num2 = Math.floor(Math.random() * 6) + 1;
             currentNumerator = d_num1 + d_num2;
 
-            // 화면 반영 (분모)
             document.getElementById('denominator-dice-1').innerText = diceFaces[d_den1 - 1];
             document.getElementById('denominator-dice-2').innerText = diceFaces[d_den2 - 1];
             document.getElementById('denominator-text').innerText = `분모: ${d_den1} + ${d_den2} = ${currentDenominator}`;
             
-            // 화면 반영 (분자)
             document.getElementById('numerator-dice-1').innerText = diceFaces[d_num1 - 1];
             document.getElementById('numerator-dice-2').innerText = diceFaces[d_num2 - 1];
             document.getElementById('numerator-text').innerText = `분자: ${d_num1} + ${d_num2} = ${currentNumerator}`;
@@ -219,7 +536,6 @@
             document.getElementById('numerator-val').innerText = currentNumerator;
             document.getElementById('denominator-val').innerText = currentDenominator;
 
-            // 판별 버튼 활성화
             document.getElementById('choice-buttons').classList.remove('hidden');
             isWaitingForAnswer = true;
         }
@@ -231,7 +547,6 @@
             const feedbackMsg = document.getElementById('feedback-msg');
             const scoreDisplay = document.getElementById('score');
             
-            // 정답 판별 (진분수: 분자 < 분모, 가분수: 분자 >= 분모)
             let actualType = currentNumerator < currentDenominator ? "진분수" : "가분수";
 
             if (userChoice === actualType) {
@@ -243,8 +558,6 @@
             }
 
             scoreDisplay.innerText = score;
-
-            // 버튼 상태 전환 및 다음 문제 준비 (시간이 남아있을 때만)
             document.getElementById('choice-buttons').classList.add('hidden');
 
             setTimeout(() => {
@@ -262,7 +575,7 @@
             }, 1200);
         }
 
-        function endGame() {
+        function endGame2() {
             isWaitingForAnswer = false;
             document.getElementById('choice-buttons').classList.add('hidden');
             document.getElementById('roll-btn').classList.add('hidden');
@@ -272,30 +585,12 @@
             const modalDesc = document.getElementById('modal-desc');
 
             modalTitle.innerText = "⏰ 3분 제한 시간 종료! 🍂";
-            modalDesc.innerHTML = `총 획득 점수: <b class="text-amber-600 text-2xl">${score}점</b><br>열심히 호박 분수를 모았어요!`;
+            modalDesc.innerHTML = `총 획득 점수: <b class="text-amber-600 text-2xl">${score}점</b><br>멋지게 진진가 문제를 풀었어요!`;
             modal.classList.remove('hidden');
         }
 
-        function resetGame() {
-            if (timerInterval) clearInterval(timerInterval);
-            score = 0;
-            timeLeft = 180;
-            isGameStarted = false;
-            isWaitingForAnswer = false;
-            
-            document.getElementById('score').innerText = score;
-            updateTimerDisplay();
-            document.getElementById('modal').classList.add('hidden');
-            document.getElementById('roll-btn').classList.remove('hidden');
-            document.getElementById('choice-buttons').classList.add('hidden');
-            document.getElementById('fraction-display-card').classList.add('hidden');
-            document.getElementById('denominator-text').innerText = `분모: ?`;
-            document.getElementById('numerator-text').innerText = `분자: ?`;
-            document.getElementById('denominator-dice-1').innerText = '🎲';
-            document.getElementById('denominator-dice-2').innerText = '🎲';
-            document.getElementById('numerator-dice-1').innerText = '🎲';
-            document.getElementById('numerator-dice-2').innerText = '🎲';
-            document.getElementById('feedback-msg').innerText = "";
+        function closeModalAndGoHome() {
+            goHome();
         }
     </script>
 </body>
