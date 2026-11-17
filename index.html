@@ -12,8 +12,9 @@
             font-family: 'Jua', sans-serif;
             background-color: #fef3c7;
             background-image: radial-gradient(#fde68a 1.5px, transparent 1.5px), radial-gradient(#fde68a 1.5px, #fef3c7 1.5px);
-            background-size: 30px 30px;
-            background-position: 0 0, 15px 15px;
+            background-size: 24px 24px;
+            background-position: 0 0, 12px 12px;
+            touch-action: manipulation;
         }
         .handwriting {
             font-family: 'Jua', sans-serif;
@@ -22,159 +23,162 @@
             display: inline-block;
             vertical-align: middle;
             text-align: center;
-            margin: 0 0.25rem;
+            margin: 0 0.2rem;
         }
         .fraction-num {
             display: block;
-            border-bottom: 2px solid currentColor;
-            padding-bottom: 0.1rem;
+            border-bottom: 2.5px solid currentColor;
+            padding-bottom: 0.05rem;
         }
         .fraction-den {
             display: block;
-            padding-top: 0.1rem;
+            padding-top: 0.05rem;
+        }
+        /* 전자칠판 터치 최적화 */
+        button, select, input {
+            touch-action: manipulation;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-between p-4 selection:bg-amber-300">
+<body class="h-screen w-screen overflow-hidden flex flex-col justify-between p-2 md:p-3 selection:bg-amber-300">
 
-    <!-- 헤더 -->
-    <header class="w-full max-w-5xl text-center py-4 relative z-10">
-        <h1 class="text-4xl md:text-5xl font-black text-amber-900 drop-shadow-md flex items-center justify-center space-x-2">
-            <span>🎃</span>
-            <span>넝쿨째 굴러온 분수</span>
-            <span>🌿</span>
-        </h1>
-        <p class="text-amber-800 text-lg mt-1 handwriting">가을 호박밭에서 즐겁게 분수를 배워봐요!</p>
+    <!-- 상단 헤더 & 네비게이션바 (화면 100% 핏 컴팩트 디자인) -->
+    <header class="w-full max-w-[1280px] mx-auto flex items-center justify-between py-2 px-5 bg-white/90 backdrop-blur-md rounded-xl shadow-md border-2 border-amber-200 z-20 shrink-0">
+        <div class="flex items-center space-x-2.5">
+            <span class="text-2xl">🎃</span>
+            <h1 class="text-xl md:text-2xl font-black text-amber-900 tracking-wide">
+                넝쿨째 굴러온 분수
+            </h1>
+            <span class="hidden md:inline-block text-amber-700 text-xs handwriting font-bold bg-amber-100 px-2.5 py-0.5 rounded-full border border-amber-300">
+                🌿 가을 호박밭 수학 교실
+            </span>
+        </div>
+
+        <!-- 게임 중일 때 표시되는 상단 홈 버튼 -->
+        <div id="home-btn-container" class="hidden">
+            <button type="button" id="top-home-btn" class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white rounded-xl shadow font-bold flex items-center space-x-1.5 transition cursor-pointer text-xs md:text-sm border-b-2 border-amber-800">
+                <span>🏠 홈으로</span>
+            </button>
+        </div>
     </header>
 
-    <!-- 홈으로 가기 버튼 (게임 중일 때만 표시) -->
-    <div id="home-btn-container" class="w-full max-w-5xl flex justify-start mb-2 hidden z-40 relative">
-        <button type="button" id="top-home-btn" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl shadow font-bold flex items-center space-x-2 transition cursor-pointer">
-            <span>🏠 홈으로 가기</span>
-        </button>
-    </div>
-
-    <!-- 메인 컨테이너 (태블릿 가로 최적화 넓이) -->
-    <main class="w-full max-w-5xl bg-amber-50/95 backdrop-blur-md rounded-3xl p-6 shadow-2xl border-4 border-amber-200 my-4 flex flex-col items-center relative z-10">
+    <!-- 메인 컨테이너 (태블릿 및 전자칠판 100% 뷰포트 절대 핏) -->
+    <main class="w-full max-w-[1280px] mx-auto flex-1 flex flex-col items-center justify-center relative z-10 my-1 overflow-hidden">
         
-        <!-- ================= 홈 화면 ================= -->
-        <div id="screen-home" class="w-full flex flex-col items-center space-y-6 py-6 z-20">
-            <div class="text-center mb-2">
-                <h2 class="text-2xl md:text-3xl font-extrabold text-amber-900 mb-2">놀이 모드를 선택해 주세요!</h2>
-                <p class="text-amber-800 handwriting text-lg">어떤 호박 농장 놀이를 해볼까요?</p>
+        <!-- ================= 홈 화면 (2x2 대형 그리드 카드) ================= -->
+        <div id="screen-home" class="w-full flex flex-col items-center justify-center space-y-3 z-20">
+            <div class="text-center mb-1">
+                <h2 class="text-xl md:text-2xl font-extrabold text-amber-900 mb-0.5">놀이 모드를 선택해 주세요!</h2>
+                <p class="text-amber-800 handwriting text-base">가로 화면과 전자칠판 100% 뷰포트에 딱 맞는 호박 농장 놀이!</p>
             </div>
             
-            <!-- 태블릿 가로 화면에 맞춘 2x2 그리드 레이아웃 -->
-            <div class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-5 relative z-30">
-                <button type="button" onclick="startMode(1)" class="w-full p-6 bg-gradient-to-r from-orange-400 to-amber-500 hover:from-orange-500 hover:to-amber-600 text-white rounded-2xl shadow-xl transform transition hover:-translate-y-1 border-b-4 border-amber-800 text-left cursor-pointer flex items-center space-x-4">
-                    <span class="text-4xl pointer-events-none">🎨</span>
-                    <div class="pointer-events-none">
-                        <h3 class="text-2xl font-bold">1게임: 분수 색칠하기</h3>
-                        <p class="text-amber-100 text-sm handwriting">그림을 직접 분할하고 색칠하며 진분수 익히기</p>
+            <!-- 태블릿/전자칠판 가로 최적화 2x2 그리드 -->
+            <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-3.5 max-w-4xl relative z-30">
+                <button type="button" onclick="startMode(1)" class="w-full p-4 bg-gradient-to-r from-orange-400 to-amber-500 hover:from-orange-500 hover:to-amber-600 active:scale-98 text-white rounded-2xl shadow-md transform transition hover:-translate-y-0.5 border-b-4 border-amber-800 text-left cursor-pointer flex items-center space-x-4">
+                    <span class="text-3xl p-2.5 bg-white/20 rounded-xl pointer-events-none shadow-inner">🎨</span>
+                    <div class="pointer-events-none space-y-0.5">
+                        <h3 class="text-lg md:text-xl font-black">1게임: 분수 색칠하기</h3>
+                        <p class="text-amber-100 text-xs handwriting">그림을 직접 분할하고 색칠하며 진분수 익히기</p>
                     </div>
                 </button>
 
-                <button type="button" onclick="startMode(2)" class="w-full p-6 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-2xl shadow-xl transform transition hover:-translate-y-1 border-b-4 border-amber-900 text-left cursor-pointer flex items-center space-x-4">
-                    <span class="text-4xl pointer-events-none">🎃</span>
-                    <div class="pointer-events-none">
-                        <h3 class="text-2xl font-bold">2게임: 진진가를 찾아라</h3>
-                        <p class="text-amber-100 text-sm handwriting">주사위 2개씩 굴려 진분수와 가분수 판별 타임어택!</p>
+                <button type="button" onclick="startMode(2)" class="w-full p-4 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 active:scale-98 text-white rounded-2xl shadow-md transform transition hover:-translate-y-0.5 border-b-4 border-amber-900 text-left cursor-pointer flex items-center space-x-4">
+                    <span class="text-3xl p-2.5 bg-white/20 rounded-xl pointer-events-none shadow-inner">🎃</span>
+                    <div class="pointer-events-none space-y-0.5">
+                        <h3 class="text-lg md:text-xl font-black">2게임: 진진가를 찾아라</h3>
+                        <p class="text-amber-100 text-xs handwriting">주사위 2개씩 굴려 진분수와 가분수 판별 타임어택!</p>
                     </div>
                 </button>
 
-                <button type="button" onclick="startMode(3)" class="w-full p-6 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-2xl shadow-xl transform transition hover:-translate-y-1 border-b-4 border-emerald-900 text-left cursor-pointer flex items-center space-x-4">
-                    <span class="text-4xl pointer-events-none">🧺</span>
-                    <div class="pointer-events-none">
-                        <h3 class="text-2xl font-bold">3게임: 묶음을 분수로 만들기</h3>
-                        <p class="text-amber-100 text-sm handwriting">호박 묶음을 나누고 숫자 패드로 분수 표현하기</p>
+                <button type="button" onclick="startMode(3)" class="w-full p-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 active:scale-98 text-white rounded-2xl shadow-md transform transition hover:-translate-y-0.5 border-b-4 border-emerald-900 text-left cursor-pointer flex items-center space-x-4">
+                    <span class="text-3xl p-2.5 bg-white/20 rounded-xl pointer-events-none shadow-inner">🧺</span>
+                    <div class="pointer-events-none space-y-0.5">
+                        <h3 class="text-lg md:text-xl font-black">3게임: 묶음을 분수로 만들기</h3>
+                        <p class="text-amber-100 text-xs handwriting">호박 묶음을 나누고 숫자 패드로 분수 표현하기</p>
                     </div>
                 </button>
 
-                <button type="button" onclick="startMode(4)" class="w-full p-6 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white rounded-2xl shadow-xl transform transition hover:-translate-y-1 border-b-4 border-indigo-900 text-left cursor-pointer flex items-center space-x-4">
-                    <span class="text-4xl pointer-events-none">🍫</span>
-                    <div class="pointer-events-none">
-                        <h3 class="text-2xl font-bold">4게임: 막대그림 가·대분수</h3>
-                        <p class="text-amber-100 text-sm handwriting">여러 개의 막대를 조각내어 가분수·대분수 표현하기</p>
+                <button type="button" onclick="startMode(4)" class="w-full p-4 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 active:scale-98 text-white rounded-2xl shadow-md transform transition hover:-translate-y-0.5 border-b-4 border-indigo-900 text-left cursor-pointer flex items-center space-x-4">
+                    <span class="text-3xl p-2.5 bg-white/20 rounded-xl pointer-events-none shadow-inner">🍫</span>
+                    <div class="pointer-events-none space-y-0.5">
+                        <h3 class="text-lg md:text-xl font-black">4게임: 막대그림 가·대분수</h3>
+                        <p class="text-amber-100 text-xs handwriting">여러 개의 막대를 조각내어 가분수·대분수 표현하기</p>
                     </div>
                 </button>
-            </div>
-            
-            <div class="w-full max-w-4xl flex justify-center mt-6 pt-4 border-t border-amber-200">
-                <div class="text-amber-800 text-sm font-bold flex items-center space-x-2">
-                    <span>💡 원하시는 게임 상자를 클릭하여 언제든지 학습을 시작하세요!</span>
-                </div>
             </div>
         </div>
 
         <!-- ================= 1게임: 분수 색칠하기 ================= -->
-        <div id="screen-game1" class="w-full flex flex-col hidden">
-            <div class="w-full flex justify-between items-center bg-amber-200/60 px-6 py-3 rounded-2xl mb-4 border border-amber-300">
-                <div class="text-lg md:text-xl text-amber-900 font-bold">
-                    🎨 1게임: 분수 색칠하기
+        <div id="screen-game1" class="w-full flex flex-col hidden space-y-2.5">
+            <div class="w-full flex justify-between items-center bg-amber-200/80 px-4 py-2 rounded-xl border border-amber-300 shadow-sm">
+                <div class="text-base md:text-lg text-amber-900 font-extrabold flex items-center space-x-2">
+                    <span>🎨</span><span>1게임: 분수 색칠하기</span>
                 </div>
-                <div class="text-lg text-amber-800 font-bold">
-                    ⭐ 맞춘 횟수: <span id="game1-score" class="text-orange-600 text-2xl">0</span>회
+                <div class="text-sm text-amber-800 font-extrabold bg-white/90 px-3 py-1 rounded-lg shadow-inner border border-amber-300">
+                    ⭐ 맞춘 횟수: <span id="game1-score" class="text-orange-600 text-lg">0</span>회
                 </div>
             </div>
 
-            <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                <div class="lg:col-span-7 flex flex-col space-y-4">
-                    <div class="w-full bg-amber-100/90 rounded-2xl p-4 text-center border-2 border-amber-300 shadow-inner">
-                        <p id="game1-instruction" class="text-base md:text-lg font-bold text-amber-900 mb-1">
+            <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-start">
+                <div class="lg:col-span-7 flex flex-col space-y-2.5">
+                    <div class="w-full bg-amber-100/90 rounded-xl p-2.5 text-center border border-amber-300 shadow-inner flex flex-col items-center">
+                        <p id="game1-instruction" class="text-xs md:text-sm font-bold text-amber-900 mb-1">
                             제시된 그림을 보고 분모와 분자를 빈칸에 채워 넣어 보세요!
                         </p>
-                        <div class="flex items-center justify-center my-2 space-x-3">
-                            <span class="text-amber-900 font-bold text-lg">목표 분수:</span>
-                            <div id="g1-target-display" class="px-4 py-1 bg-white rounded-xl shadow border border-amber-300 text-2xl font-extrabold text-orange-600">
+                        <div class="flex items-center justify-center space-x-2">
+                            <span class="text-amber-900 font-extrabold text-sm">목표 분수:</span>
+                            <div id="g1-target-display" class="px-3 py-0.5 bg-white rounded-lg shadow border border-amber-300 text-xl font-black text-orange-600">
                                 ? / ?
                             </div>
                         </div>
                     </div>
 
-                    <div class="w-full bg-white/90 p-6 rounded-2xl shadow-md border-2 border-amber-300 flex flex-col items-center justify-center min-h-[320px] space-y-6">
+                    <div class="w-full bg-white/95 p-4 rounded-xl shadow border border-amber-300 flex flex-col md:flex-row items-center justify-around gap-4 h-[240px]">
                         <div class="flex flex-col items-center">
-                            <p class="text-xs text-amber-700 font-bold mb-1">원형 조각 (클릭해서 색칠)</p>
-                            <div id="g1-circle-container" class="relative w-48 h-48 cursor-pointer drop-shadow-md"></div>
+                            <p class="text-xs text-amber-800 font-bold mb-1.5 bg-amber-100 px-2 py-0.5 rounded-full">원형 조각 (터치해서 색칠)</p>
+                            <div id="g1-circle-container" class="relative w-32 h-32 md:w-36 md:h-36 cursor-pointer drop-shadow-sm"></div>
                         </div>
-                        <div class="w-full flex flex-col items-center">
-                            <p class="text-xs text-amber-700 font-bold mb-1">막대 조각 (클릭해서 색칠)</p>
-                            <div id="g1-bar-container" class="w-full max-w-md h-12 bg-amber-100 rounded-xl overflow-hidden flex shadow-inner border border-amber-300 cursor-pointer"></div>
+                        <div class="flex flex-col items-center w-full md:w-1/2">
+                            <p class="text-xs text-amber-800 font-bold mb-1.5 bg-amber-100 px-2 py-0.5 rounded-full">막대 조각 (터치해서 색칠)</p>
+                            <div id="g1-bar-container" class="w-full h-10 bg-amber-100 rounded-lg overflow-hidden flex shadow-inner border border-amber-300 cursor-pointer"></div>
                         </div>
                     </div>
                 </div>
 
-                <div class="lg:col-span-5 flex flex-col space-y-4">
-                    <div class="w-full bg-white/90 p-5 rounded-2xl shadow-md border-2 border-amber-300 flex flex-col items-center">
-                        <h3 class="text-amber-900 font-bold mb-2 text-lg">🔢 분수 입력 패드</h3>
+                <div class="lg:col-span-5 flex flex-col space-y-2.5">
+                    <div class="w-full bg-white/95 p-3.5 rounded-xl shadow border border-amber-300 flex flex-col items-center">
+                        <h3 class="text-amber-900 font-black mb-2 text-sm flex items-center space-x-1.5">
+                            <span>🔢</span><span>분수 입력 패드</span>
+                        </h3>
                         
-                        <div class="w-full grid grid-cols-2 gap-3 mb-4">
-                            <div id="g1-box-den" onclick="g1SelectField('den')" class="p-3 rounded-xl border-2 border-orange-500 bg-orange-50 text-center cursor-pointer shadow-sm">
-                                <span class="text-xs font-bold text-amber-800 block">분모 =</span>
-                                <span id="g1-val-den" class="text-2xl font-black text-orange-600">-</span>
+                        <div class="w-full grid grid-cols-2 gap-2.5 mb-2.5">
+                            <div id="g1-box-den" onclick="g1SelectField('den')" class="p-2.5 rounded-xl border-2 border-orange-500 bg-orange-50 text-center cursor-pointer shadow-sm transition">
+                                <span class="text-xs font-extrabold text-amber-800 block">분모 =</span>
+                                <span id="g1-val-den" class="text-xl font-black text-orange-600">-</span>
                             </div>
-                            <div id="g1-box-num" onclick="g1SelectField('num')" class="p-3 rounded-xl border-2 border-amber-300 bg-amber-50 text-center cursor-pointer shadow-sm">
-                                <span class="text-xs font-bold text-amber-800 block">분자 =</span>
-                                <span id="g1-val-num" class="text-2xl font-black text-amber-900">-</span>
+                            <div id="g1-box-num" onclick="g1SelectField('num')" class="p-2.5 rounded-xl border-2 border-amber-300 bg-amber-50 text-center cursor-pointer shadow-sm transition opacity-80">
+                                <span class="text-xs font-extrabold text-amber-800 block">분자 =</span>
+                                <span id="g1-val-num" class="text-xl font-black text-amber-900">-</span>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-3 gap-2 w-full max-w-xs mb-4">
-                            <button type="button" onclick="g1PadClick(1)" class="py-3 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold rounded-xl shadow text-xl cursor-pointer">1</button>
-                            <button type="button" onclick="g1PadClick(2)" class="py-3 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold rounded-xl shadow text-xl cursor-pointer">2</button>
-                            <button type="button" onclick="g1PadClick(3)" class="py-3 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold rounded-xl shadow text-xl cursor-pointer">3</button>
-                            <button type="button" onclick="g1PadClick(4)" class="py-3 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold rounded-xl shadow text-xl cursor-pointer">4</button>
-                            <button type="button" onclick="g1PadClick(5)" class="py-3 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold rounded-xl shadow text-xl cursor-pointer">5</button>
-                            <button type="button" onclick="g1PadClick(6)" class="py-3 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold rounded-xl shadow text-xl cursor-pointer">6</button>
-                            <button type="button" onclick="g1PadClick(7)" class="py-3 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold rounded-xl shadow text-xl cursor-pointer">7</button>
-                            <button type="button" onclick="g1PadClick(8)" class="py-3 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold rounded-xl shadow text-xl cursor-pointer">8</button>
-                            <button type="button" onclick="g1PadClick(9)" class="py-3 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold rounded-xl shadow text-xl cursor-pointer">9</button>
-                            <button type="button" onclick="g1PadClick('C')" class="py-3 bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold rounded-xl shadow text-lg cursor-pointer">지우기</button>
-                            <button type="button" onclick="g1PadClick(0)" class="py-3 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold rounded-xl shadow text-xl cursor-pointer">0</button>
-                            <button type="button" onclick="g1PadClick('OK')" class="py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl shadow text-lg cursor-pointer">확인</button>
+                        <div class="grid grid-cols-3 gap-1.5 w-full max-w-[260px] mb-2">
+                            <button type="button" onclick="g1PadClick(1)" class="py-2 bg-amber-100 hover:bg-amber-200 active:scale-95 text-amber-900 font-black rounded-lg shadow text-base cursor-pointer">1</button>
+                            <button type="button" onclick="g1PadClick(2)" class="py-2 bg-amber-100 hover:bg-amber-200 active:scale-95 text-amber-900 font-black rounded-lg shadow text-base cursor-pointer">2</button>
+                            <button type="button" onclick="g1PadClick(3)" class="py-2 bg-amber-100 hover:bg-amber-200 active:scale-95 text-amber-900 font-black rounded-lg shadow text-base cursor-pointer">3</button>
+                            <button type="button" onclick="g1PadClick(4)" class="py-2 bg-amber-100 hover:bg-amber-200 active:scale-95 text-amber-900 font-black rounded-lg shadow text-base cursor-pointer">4</button>
+                            <button type="button" onclick="g1PadClick(5)" class="py-2 bg-amber-100 hover:bg-amber-200 active:scale-95 text-amber-900 font-black rounded-lg shadow text-base cursor-pointer">5</button>
+                            <button type="button" onclick="g1PadClick(6)" class="py-2 bg-amber-100 hover:bg-amber-200 active:scale-95 text-amber-900 font-black rounded-lg shadow text-base cursor-pointer">6</button>
+                            <button type="button" onclick="g1PadClick(7)" class="py-2 bg-amber-100 hover:bg-amber-200 active:scale-95 text-amber-900 font-black rounded-lg shadow text-base cursor-pointer">7</button>
+                            <button type="button" onclick="g1PadClick(8)" class="py-2 bg-amber-100 hover:bg-amber-200 active:scale-95 text-amber-900 font-black rounded-lg shadow text-base cursor-pointer">8</button>
+                            <button type="button" onclick="g1PadClick(9)" class="py-2 bg-amber-100 hover:bg-amber-200 active:scale-95 text-amber-900 font-black rounded-lg shadow text-base cursor-pointer">9</button>
+                            <button type="button" onclick="g1PadClick('C')" class="py-2 bg-rose-100 hover:bg-rose-200 active:scale-95 text-rose-800 font-black rounded-lg shadow text-xs cursor-pointer">지우기</button>
+                            <button type="button" onclick="g1PadClick(0)" class="py-2 bg-amber-100 hover:bg-amber-200 active:scale-95 text-amber-900 font-black rounded-lg shadow text-base cursor-pointer">0</button>
+                            <button type="button" onclick="g1PadClick('OK')" class="py-2 bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-black rounded-lg shadow text-xs cursor-pointer">확인</button>
                         </div>
                     </div>
 
-                    <button type="button" onclick="checkGame1()" class="w-full py-4 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white text-xl font-extrabold rounded-2xl shadow-xl transform transition hover:-translate-y-0.5 border-b-4 border-amber-800 cursor-pointer">
+                    <button type="button" onclick="checkGame1()" class="w-full py-3 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 active:scale-98 text-white text-lg font-black rounded-xl shadow-md border-b-3 border-amber-800 cursor-pointer">
                         ✨ 도전하기 (정답 확인)
                     </button>
                 </div>
@@ -182,126 +186,124 @@
         </div>
 
         <!-- ================= 2게임: 진진가를 찾아라 ================= -->
-        <div id="screen-game2" class="w-full flex flex-col hidden">
-            <div class="w-full flex justify-between items-center bg-amber-200/60 px-6 py-3 rounded-2xl mb-4 border border-amber-300">
-                <div class="text-lg md:text-xl text-amber-900 font-bold">
-                    🎃 2게임: 진진가를 찾아라 (타임어택)
+        <div id="screen-game2" class="w-full flex flex-col hidden space-y-2.5">
+            <div class="w-full flex justify-between items-center bg-amber-200/80 px-4 py-2 rounded-xl border border-amber-300 shadow-sm">
+                <div class="text-base md:text-lg text-amber-900 font-extrabold flex items-center space-x-2">
+                    <span>🎃</span><span>2게임: 진진가를 찾아라 (타임어택)</span>
                 </div>
-                <div class="flex items-center space-x-6">
-                    <div class="text-lg text-amber-800 font-bold">
-                        ⏳ 남은 시간: <span id="g2-timer" class="text-rose-600 text-2xl">03:00</span>
+                <div class="flex items-center space-x-3">
+                    <div class="text-sm text-amber-800 font-extrabold bg-white/90 px-3 py-1 rounded-lg shadow-inner border border-amber-300">
+                        ⏳ 남은 시간: <span id="g2-timer" class="text-rose-600 text-lg font-black">03:00</span>
                     </div>
-                    <div class="text-lg text-amber-800 font-bold">
-                        ⭐ 점수: <span id="g2-score" class="text-orange-600 text-2xl">0</span>점
+                    <div class="text-sm text-amber-800 font-extrabold bg-white/90 px-3 py-1 rounded-lg shadow-inner border border-amber-300">
+                        ⭐ 점수: <span id="g2-score" class="text-orange-600 text-lg font-black">0</span>점
                     </div>
                 </div>
             </div>
 
-            <div class="w-full bg-white/90 p-8 rounded-3xl shadow-md border-2 border-amber-300 flex flex-col items-center space-y-6">
-                <!-- 목표 미션 안내 배너 -->
-                <div class="w-full bg-amber-100/90 rounded-2xl p-4 text-center border-2 border-amber-300 shadow-inner">
-                    <p class="text-base md:text-lg font-bold text-amber-900 mb-1">
+            <div class="w-full bg-white/95 p-4 rounded-xl shadow border border-amber-300 flex flex-col items-center space-y-3">
+                <div class="w-full bg-amber-100/90 rounded-xl p-2.5 text-center border border-amber-300 shadow-inner">
+                    <p class="text-xs md:text-sm font-extrabold text-amber-900 mb-0.5">
                         🎯 미션: 주사위를 굴려 완성된 분수가 <span class="text-orange-600 underline">진분수</span>인지 <span class="text-purple-600 underline">가분수</span>인지 맞춰보세요!
                     </p>
-                    <p id="g2-target-status" class="text-sm text-amber-800 handwriting">
+                    <p id="g2-target-status" class="text-xs text-amber-800 handwriting">
                         주사위를 굴려 분수를 완성해 주세요.
                     </p>
                 </div>
 
-                <div class="flex flex-wrap justify-center gap-8 items-center">
-                    <div class="flex flex-col items-center bg-amber-50 p-5 rounded-2xl border-2 border-amber-200 shadow-inner">
-                        <span class="text-sm font-bold text-amber-800 mb-2">분모 주사위 (2개 합산)</span>
-                        <div class="flex space-x-3 mb-2">
-                            <div id="den-dice-1" class="w-14 h-14 bg-white rounded-xl shadow flex items-center justify-center text-3xl font-black border-2 border-amber-400 text-amber-800">?</div>
-                            <div id="den-dice-2" class="w-14 h-14 bg-white rounded-xl shadow flex items-center justify-center text-3xl font-black border-2 border-amber-400 text-amber-800">?</div>
+                <div class="flex flex-wrap justify-center gap-6 items-center w-full">
+                    <div class="flex flex-col items-center bg-amber-50 p-3 rounded-xl border border-amber-200 shadow-inner min-w-[200px]">
+                        <span class="text-xs font-extrabold text-amber-800 mb-1.5">분모 주사위 (2개 합산)</span>
+                        <div class="flex space-x-2.5 mb-1.5">
+                            <div id="den-dice-1" class="w-10 h-10 bg-white rounded-lg shadow flex items-center justify-center text-xl font-black border border-amber-400 text-amber-800">?</div>
+                            <div id="den-dice-2" class="w-10 h-10 bg-white rounded-lg shadow flex items-center justify-center text-xl font-black border border-amber-400 text-amber-800">?</div>
                         </div>
-                        <span class="text-base font-extrabold text-amber-900">분모 = <span id="den-sum" class="text-orange-600 text-xl">?</span></span>
+                        <span class="text-xs font-black text-amber-900">분모 = <span id="den-sum" class="text-orange-600 text-base">?</span></span>
                     </div>
 
-                    <div class="flex flex-col items-center bg-amber-50 p-5 rounded-2xl border-2 border-amber-200 shadow-inner">
-                        <span class="text-sm font-bold text-amber-800 mb-2">분자 주사위 (2개 합산)</span>
-                        <div class="flex space-x-3 mb-2">
-                            <div id="num-dice-1" class="w-14 h-14 bg-white rounded-xl shadow flex items-center justify-center text-3xl font-black border-2 border-orange-400 text-orange-700">?</div>
-                            <div id="num-dice-2" class="w-14 h-14 bg-white rounded-xl shadow flex items-center justify-center text-3xl font-black border-2 border-orange-400 text-orange-700">?</div>
+                    <div class="flex flex-col items-center bg-amber-50 p-3 rounded-xl border border-amber-200 shadow-inner min-w-[200px]">
+                        <span class="text-xs font-extrabold text-amber-800 mb-1.5">분자 주사위 (2개 합산)</span>
+                        <div class="flex space-x-2.5 mb-1.5">
+                            <div id="num-dice-1" class="w-10 h-10 bg-white rounded-lg shadow flex items-center justify-center text-xl font-black border border-orange-400 text-orange-700">?</div>
+                            <div id="num-dice-2" class="w-10 h-10 bg-white rounded-lg shadow flex items-center justify-center text-xl font-black border border-orange-400 text-orange-700">?</div>
                         </div>
-                        <span class="text-base font-extrabold text-amber-900">분자 = <span id="num-sum" class="text-orange-600 text-xl">?</span></span>
+                        <span class="text-xs font-black text-amber-900">분자 = <span id="num-sum" class="text-orange-600 text-base">?</span></span>
                     </div>
                 </div>
 
-                <div class="flex flex-col items-center justify-center bg-amber-100/70 w-full max-w-md py-6 rounded-2xl border border-amber-300">
-                    <p class="text-sm text-amber-800 font-bold mb-2">완성된 분수</p>
-                    <div id="g2-fraction-box" class="text-4xl font-black text-amber-900">
+                <div class="flex flex-col items-center justify-center bg-amber-100/70 w-full max-w-sm py-3 rounded-xl border border-amber-300 shadow-inner">
+                    <p class="text-xs text-amber-800 font-extrabold mb-0.5">완성된 분수</p>
+                    <div id="g2-fraction-box" class="text-3xl font-black text-amber-900">
                         ? / ?
                     </div>
                 </div>
 
-                <div class="flex flex-col md:flex-row gap-4 w-full max-w-lg justify-center">
-                    <button type="button" onclick="rollDiceGame2()" id="g2-roll-btn" class="flex-1 py-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xl font-extrabold rounded-2xl shadow-xl transform transition hover:-translate-y-0.5 border-b-4 border-amber-800 cursor-pointer">
+                <div class="flex flex-col md:flex-row gap-2 w-full max-w-sm justify-center">
+                    <button type="button" onclick="rollDiceGame2()" id="g2-roll-btn" class="flex-1 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 active:scale-98 text-white text-lg font-black rounded-xl shadow-md border-b-3 border-amber-800 cursor-pointer">
                         🎲 주사위 굴리기
                     </button>
                 </div>
 
-                <div id="g2-answer-buttons" class="flex gap-4 w-full max-w-lg hidden">
-                    <button type="button" onclick="answerGame2('진분수')" class="flex-1 py-4 bg-emerald-500 hover:bg-emerald-600 text-white text-xl font-extrabold rounded-2xl shadow-xl border-b-4 border-emerald-800 transition transform hover:-translate-y-0.5 cursor-pointer">
-                        🟢 진분수
+                <div id="g2-answer-buttons" class="flex gap-3 w-full max-w-sm hidden">
+                    <button type="button" onclick="answerGame2('진분수')" class="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 active:scale-98 text-white text-lg font-black rounded-xl shadow-md border-b-3 border-emerald-800 cursor-pointer flex items-center justify-center space-x-1.5">
+                        <span>🟢</span><span>진분수</span>
                     </button>
-                    <button type="button" onclick="answerGame2('가분수')" class="flex-1 py-4 bg-purple-500 hover:bg-purple-600 text-white text-xl font-extrabold rounded-2xl shadow-xl border-b-4 border-purple-800 transition transform hover:-translate-y-0.5 cursor-pointer">
-                        🟣 가분수
+                    <button type="button" onclick="answerGame2('가분수')" class="flex-1 py-3 bg-purple-500 hover:bg-purple-600 active:scale-98 text-white text-lg font-black rounded-xl shadow-md border-b-3 border-purple-800 cursor-pointer flex items-center justify-center space-x-1.5">
+                        <span>🟣</span><span>가분수</span>
                     </button>
                 </div>
             </div>
         </div>
 
         <!-- ================= 3게임: 묶음을 분수로 만들기 ================= -->
-        <div id="screen-game3" class="w-full flex flex-col hidden">
-            <div class="w-full flex justify-between items-center bg-amber-200/60 px-6 py-3 rounded-2xl mb-4 border border-amber-300">
-                <div class="text-lg md:text-xl text-amber-900 font-bold">
-                    🧺 3게임: 묶음을 분수로 만들기
+        <div id="screen-game3" class="w-full flex flex-col hidden space-y-2.5">
+            <div class="w-full flex justify-between items-center bg-amber-200/80 px-4 py-2 rounded-xl border border-amber-300 shadow-sm">
+                <div class="text-base md:text-lg text-amber-900 font-extrabold flex items-center space-x-2">
+                    <span>🧺</span><span>3게임: 묶음을 분수로 만들기</span>
                 </div>
-                <div class="text-lg text-amber-800 font-bold">
-                    ⭐ 맞춘 횟수: <span id="game3-score" class="text-emerald-600 text-2xl">0</span>회
+                <div class="text-sm text-amber-800 font-extrabold bg-white/90 px-3 py-1 rounded-lg shadow-inner border border-amber-300">
+                    ⭐ 맞춘 횟수: <span id="game3-score" class="text-emerald-600 text-lg">0</span>회
                 </div>
             </div>
 
-            <div class="w-full bg-white/90 p-6 rounded-3xl shadow-md border-2 border-amber-300 flex flex-col items-center space-y-6">
-                <!-- 목표 분수 제시 안내 배너 -->
-                <div class="w-full bg-emerald-50 p-4 rounded-2xl border-2 border-emerald-300 text-center flex flex-col items-center space-y-2 shadow-inner">
-                    <p id="game3-instruction" class="text-base md:text-lg font-bold text-emerald-900">
+            <div class="w-full bg-white/95 p-4 rounded-xl shadow border border-amber-300 flex flex-col items-center space-y-3">
+                <div class="w-full bg-emerald-50 p-2.5 rounded-xl border border-emerald-300 text-center flex flex-col items-center space-y-1.5 shadow-inner">
+                    <p id="game3-instruction" class="text-xs md:text-sm font-extrabold text-emerald-900">
                         🎯 목표 분수에 맞게 묶음을 나누고 호박 묶음을 선택해 보세요!
                     </p>
-                    <div class="flex items-center space-x-3 bg-white px-5 py-2 rounded-2xl shadow border border-emerald-200">
-                        <span class="text-amber-900 font-bold text-base">목표 분수:</span>
-                        <div id="g3-target-display" class="text-2xl font-black text-emerald-700">
+                    <div class="flex items-center space-x-2.5 bg-white px-3.5 py-1 rounded-lg shadow-sm border border-emerald-200">
+                        <span class="text-amber-900 font-extrabold text-xs">목표 분수:</span>
+                        <div id="g3-target-display" class="text-xl font-black text-emerald-700">
                             ? / ?
                         </div>
                     </div>
                 </div>
 
-                <div id="game3-pumpkins-area" class="w-full min-h-[160px] bg-amber-50/70 p-4 rounded-2xl border-2 border-dashed border-amber-300 flex flex-wrap items-center justify-center gap-3">
+                <div id="game3-pumpkins-area" class="w-full min-h-[110px] bg-amber-50/85 p-3 rounded-xl border border-dashed border-amber-300 flex flex-wrap items-center justify-center gap-2.5">
                     <!-- 호박들 -->
                 </div>
 
-                <div class="flex flex-col md:flex-row items-center justify-center gap-4 w-full max-w-2xl bg-amber-100/60 p-4 rounded-2xl border border-amber-300">
-                    <div class="text-amber-900 font-bold text-base">
-                        총 호박 수: <span id="g3-total-count" class="text-orange-600 text-xl font-black">0</span>개
+                <div class="flex flex-col md:flex-row items-center justify-center gap-3 w-full max-w-xl bg-amber-100/70 p-3 rounded-xl border border-amber-300 shadow-inner">
+                    <div class="text-amber-900 font-extrabold text-sm">
+                        총 호박 수: <span id="g3-total-count" class="text-orange-600 text-lg font-black">0</span>개
                     </div>
                     <div class="flex items-center space-x-2">
-                        <span class="text-amber-900 font-bold">묶음 단위:</span>
-                        <select id="g3-group-size-select" class="bg-white border border-amber-400 rounded-xl px-3 py-2 font-bold text-amber-900 text-base shadow-inner">
+                        <span class="text-amber-900 font-extrabold text-xs">묶음 단위:</span>
+                        <select id="g3-group-size-select" class="bg-white border border-amber-400 rounded-lg px-2.5 py-1.5 font-extrabold text-amber-900 text-sm shadow-inner cursor-pointer">
                             <option value="">선택하세요</option>
                         </select>
-                        <button onclick="confirmGroupSize()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow cursor-pointer">
+                        <button type="button" onclick="confirmGroupSize()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-black text-xs rounded-lg shadow cursor-pointer border-b-2 border-emerald-800">
                             묶기 확인
                         </button>
                     </div>
                 </div>
 
-                <div id="g3-step2-area" class="w-full flex flex-col items-center space-y-4 hidden">
-                    <div id="game3-groups-area" class="w-full flex flex-wrap justify-center gap-4">
+                <div id="g3-step2-area" class="w-full flex flex-col items-center space-y-3 hidden">
+                    <div id="game3-groups-area" class="w-full flex flex-wrap justify-center gap-3 max-h-[130px] overflow-y-auto p-1">
                         <!-- 묶음들 -->
                     </div>
-                    <p class="text-amber-900 font-bold">목표 분수의 분자에 해당하는 만큼 묶음을 클릭해 주세요!</p>
-                    <button onclick="checkGame3()" class="w-full max-w-md py-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-xl font-extrabold rounded-2xl shadow-xl border-b-4 border-emerald-900 cursor-pointer">
+                    <p class="text-amber-900 font-extrabold text-xs">목표 분수의 분자에 해당하는 만큼 묶음을 터치해 주세요!</p>
+                    <button type="button" onclick="checkGame3()" class="w-full max-w-sm py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 active:scale-98 text-white text-lg font-black rounded-xl shadow-md border-b-3 border-emerald-900 cursor-pointer">
                         ✨ 도전하기 (정답 확인)
                     </button>
                 </div>
@@ -309,48 +311,50 @@
         </div>
 
         <!-- ================= 4게임: 막대그림 가·대분수 ================= -->
-        <div id="screen-game4" class="w-full flex flex-col hidden">
-            <div class="w-full flex justify-between items-center bg-amber-200/60 px-6 py-3 rounded-2xl mb-4 border border-amber-300">
-                <div class="text-lg md:text-xl text-amber-900 font-bold">
-                    🍫 4게임: 막대그림으로 가·대분수 익히기
+        <div id="screen-game4" class="w-full flex flex-col hidden space-y-2.5">
+            <div class="w-full flex justify-between items-center bg-amber-200/80 px-4 py-2 rounded-xl border border-amber-300 shadow-sm">
+                <div class="text-base md:text-lg text-amber-900 font-extrabold flex items-center space-x-2">
+                    <span>🍫</span><span>4게임: 막대그림으로 가·대분수 익히기</span>
                 </div>
-                <div class="text-lg text-amber-800 font-bold">
-                    ⭐ 맞춘 횟수: <span id="game4-score" class="text-purple-600 text-2xl">0</span>회
+                <div class="text-sm text-amber-800 font-extrabold bg-white/90 px-3 py-1 rounded-lg shadow-inner border border-amber-300">
+                    ⭐ 맞춘 횟수: <span id="game4-score" class="text-purple-600 text-lg">0</span>회
                 </div>
             </div>
 
-            <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                <div class="lg:col-span-7 flex flex-col space-y-4">
-                    <div class="w-full bg-amber-100/90 rounded-2xl p-4 text-center border-2 border-amber-300 shadow-inner">
-                        <p id="game4-instruction" class="text-base md:text-lg font-bold text-amber-900 mb-1">
-                            목표 숫자에 맞게 막대 조각들을 클릭해서 색칠해 보세요!
+            <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-start">
+                <div class="lg:col-span-7 flex flex-col space-y-2.5">
+                    <div class="w-full bg-amber-100/90 rounded-xl p-2.5 text-center border border-amber-300 shadow-inner flex flex-col items-center">
+                        <p id="game4-instruction" class="text-xs md:text-sm font-extrabold text-amber-900 mb-0.5">
+                            목표 숫자에 맞게 막대 조각들을 터치해서 색칠해 보세요!
                         </p>
-                        <div class="flex items-center justify-center my-2 space-x-3">
-                            <span class="text-amber-900 font-bold text-base">목표 분수:</span>
-                            <div id="g4-target-display" class="flex items-center space-x-3 px-4 py-1.5 bg-white/90 rounded-xl shadow border border-amber-300 text-xl font-extrabold text-purple-700">
+                        <div class="flex items-center justify-center space-x-2">
+                            <span class="text-amber-900 font-extrabold text-xs">목표 분수:</span>
+                            <div id="g4-target-display" class="flex items-center space-x-2 px-3 py-1 bg-white/95 rounded-lg shadow border border-amber-300 text-lg font-black text-purple-700">
                                 <!-- 동적 표기 -->
                             </div>
                         </div>
                     </div>
 
-                    <div id="game4-bars-wrapper" class="w-full bg-white/90 p-5 rounded-2xl shadow-md border-2 border-amber-300 flex flex-col space-y-4">
+                    <div id="game4-bars-wrapper" class="w-full bg-white/95 p-3 rounded-xl shadow border border-amber-300 flex flex-col space-y-2">
                         <!-- 동적 생성 -->
                     </div>
                 </div>
 
-                <div class="lg:col-span-5 flex flex-col space-y-4">
-                    <div class="w-full bg-white/90 p-5 rounded-2xl shadow-md border-2 border-amber-300 flex flex-col items-center space-y-4">
+                <div class="lg:col-span-5 flex flex-col space-y-2.5">
+                    <div class="w-full bg-white/95 p-3.5 rounded-xl shadow border border-amber-300 flex flex-col items-center space-y-2.5">
                         <div class="text-center">
-                            <h3 class="text-amber-900 font-bold text-lg mb-1">💡 힌트 및 안내</h3>
-                            <p class="text-xs text-amber-800 handwriting">각 막대를 분모만큼 쪼갠 조각들이에요. 목표한 만큼 하늘색 조각을 채워보세요!</p>
+                            <h3 class="text-amber-900 font-black text-sm mb-0.5 flex items-center justify-center space-x-1">
+                                <span>💡</span><span>힌트 및 안내</span>
+                            </h3>
+                            <p class="text-xs text-amber-800 handwriting leading-relaxed">각 막대를 분모만큼 쪼갠 조각들이에요. 목표한 만큼 하늘색 조각을 채워보세요!</p>
                         </div>
-                        <div class="bg-purple-50 p-4 rounded-xl border border-purple-200 w-full text-center">
-                            <span class="text-xs text-purple-800 font-bold block mb-1">현재 색칠된 조각 수</span>
-                            <span id="g4-current-count" class="text-3xl font-black text-purple-700">0</span>
+                        <div class="bg-purple-50 p-2.5 rounded-lg border border-purple-200 w-full text-center shadow-inner">
+                            <span class="text-xs text-purple-800 font-extrabold block mb-0.5">현재 색칠된 조각 수</span>
+                            <span id="g4-current-count" class="text-2xl font-black text-purple-700">0</span>
                         </div>
                     </div>
 
-                    <button type="button" onclick="checkGame4()" class="w-full py-4 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white text-xl font-extrabold rounded-2xl shadow-xl transform transition hover:-translate-y-0.5 border-b-4 border-indigo-900 cursor-pointer">
+                    <button type="button" onclick="checkGame4()" class="w-full py-3 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 active:scale-98 text-white text-lg font-black rounded-xl shadow-md transform transition hover:-translate-y-0.5 border-b-3 border-indigo-900 cursor-pointer">
                         ✨ 도전하기 (정답 확인)
                     </button>
                 </div>
@@ -360,36 +364,34 @@
     </main>
 
     <!-- 하단 홈으로 가기 버튼 바 (게임 플레이 중 상시 노출) -->
-    <div id="bottom-home-bar" class="w-full max-w-5xl flex justify-center mb-6 hidden z-40 relative">
-        <button type="button" id="bottom-home-btn" class="px-6 py-3 bg-amber-700 hover:bg-amber-800 text-white rounded-2xl shadow-lg font-bold flex items-center space-x-2 transition cursor-pointer text-lg border-b-4 border-amber-900">
+    <div id="bottom-home-bar" class="w-full max-w-[1280px] mx-auto flex justify-center mt-1 mb-1 hidden z-40 relative shrink-0">
+        <button type="button" id="bottom-home-btn" class="px-5 py-2.5 bg-amber-700 hover:bg-amber-800 active:scale-95 text-white rounded-xl shadow-md font-black flex items-center space-x-1.5 transition cursor-pointer text-sm border-b-3 border-amber-900">
             <span>🏠 홈 화면으로 돌아가기</span>
         </button>
     </div>
 
     <!-- 메시지 박스 모달 -->
-    <div id="modal-backdrop" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden">
-        <div class="bg-white rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl border-4 border-amber-300 text-center space-y-4 transform scale-95 transition-transform duration-300" id="modal-box">
-            <div id="modal-icon" class="text-6xl">🎉</div>
-            <h3 id="modal-title" class="text-2xl font-black text-amber-900">정답입니다!</h3>
-            <p id="modal-desc" class="text-amber-800 text-base font-bold">참 잘했어요!</p>
-            <button type="button" onclick="closeModal()" class="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-lg font-bold rounded-xl shadow-lg hover:from-amber-600 hover:to-orange-600 cursor-pointer">
+    <div id="modal-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-3">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full mx-auto shadow-2xl border-3 border-amber-300 text-center space-y-3 transform scale-95 transition-transform duration-300" id="modal-box">
+            <div id="modal-icon" class="text-5xl">🎉</div>
+            <h3 id="modal-title" class="text-xl font-black text-amber-900">정답입니다!</h3>
+            <p id="modal-desc" class="text-amber-800 text-sm md:text-base font-bold leading-relaxed">참 잘했어요!</p>
+            <button type="button" onclick="closeModal()" class="w-full py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-base font-black rounded-xl shadow hover:from-amber-600 hover:to-orange-600 active:scale-95 cursor-pointer border-b-3 border-amber-700">
                 계속하기
             </button>
         </div>
     </div>
 
     <!-- 푸터 -->
-    <footer class="w-full text-center py-3 text-amber-800 text-sm font-bold z-10">
-        🎃 넝쿨째 굴러온 분수 | 초등학교 수학 학습용 앱
+    <footer class="w-full text-center py-1 text-amber-800 text-xs font-bold z-10 shrink-0">
+        🎃 넝쿨째 굴러온 분수 | 태블릿 및 전자칠판 최적화 학습용 앱
     </footer>
 
     <!-- JavaScript 로직 -->
     <script>
-        // 전역 상태 변수
         let currentMode = 0;
         let modalCallback = null;
 
-        // 페이지 로드 시 홈 버튼 확실히 바인딩
         window.addEventListener('DOMContentLoaded', () => {
             const topBtn = document.getElementById('top-home-btn');
             const bottomBtn = document.getElementById('bottom-home-btn');
@@ -491,11 +493,11 @@
             const boxNum = document.getElementById('g1-box-num');
             
             if (g1ActiveField === 'den') {
-                boxDen.className = "p-3 rounded-xl border-2 border-orange-500 bg-orange-50 text-center cursor-pointer shadow-md";
-                boxNum.className = "p-3 rounded-xl border-2 border-amber-300 bg-amber-50 text-center cursor-pointer shadow-sm opacity-80";
+                boxDen.className = "p-2.5 rounded-xl border-2 border-orange-500 bg-orange-50 text-center cursor-pointer shadow-sm";
+                boxNum.className = "p-2.5 rounded-xl border-2 border-amber-300 bg-amber-50 text-center cursor-pointer shadow-sm opacity-80";
             } else {
-                boxDen.className = "p-3 rounded-xl border-2 border-amber-300 bg-amber-50 text-center cursor-pointer shadow-sm opacity-80";
-                boxNum.className = "p-3 rounded-xl border-2 border-orange-500 bg-orange-50 text-center cursor-pointer shadow-md";
+                boxDen.className = "p-2.5 rounded-xl border-2 border-amber-300 bg-amber-50 text-center cursor-pointer shadow-sm opacity-80";
+                boxNum.className = "p-2.5 rounded-xl border-2 border-orange-500 bg-orange-50 text-center cursor-pointer shadow-md";
             }
 
             document.getElementById('g1-val-den').innerText = g1InputDenom === '' ? '-' : g1InputDenom;
@@ -572,17 +574,20 @@
         function checkGame1() {
             let userDen = parseInt(g1InputDenom);
             let userNum = parseInt(g1InputNumer);
-            let coloredCircleCount = g1CircleFilled.filter(Boolean).length;
-            let coloredBarCount = g1BarFilled.filter(Boolean).length;
 
-            if (userDen === g1Denom && userNum === g1Numer && coloredCircleCount === g1Numer && coloredBarCount === g1Numer) {
+            if (isNaN(userDen) || isNaN(userNum)) {
+                showModal('입력 확인', '분모와 분자에 숫자를 모두 입력해 주세요!', '🤔');
+                return;
+            }
+
+            if (userDen === g1Denom && userNum === g1Numer) {
                 g1Score++;
                 document.getElementById('game1-score').innerText = g1Score;
                 showModal('정답입니다! 🎉', `분수 <span class="fraction-line"><span class="fraction-num">${g1Numer}</span><span class="fraction-den">${g1Denom}</span></span>을 올바르게 완성했습니다!`, '🎨', () => {
                     initGame1();
                 });
             } else {
-                showModal('다시 확인해 보세요! 🤔', `분모(${g1Denom}), 분자(${g1Numer})와 그림에 색칠된 조각 개수가 일치하는지 확인해 주세요.`, '💡');
+                showModal('다시 확인해 보세요! 🤔', `제시된 분수와 입력하신 숫자가 일치하는지 확인해 주세요.`, '💡');
             }
         }
 
@@ -640,11 +645,11 @@
 
             let d1 = Math.floor(Math.random() * 6) + 1;
             let d2 = Math.floor(Math.random() * 6) + 1;
-            let den = d1 + d2; // 2 ~ 12
+            let den = d1 + d2;
 
             let nd1 = Math.floor(Math.random() * 6) + 1;
             let nd2 = Math.floor(Math.random() * 6) + 1;
-            let num = nd1 + nd2; // 2 ~ 12
+            let num = nd1 + nd2;
 
             document.getElementById('den-dice-1').innerText = d1;
             document.getElementById('den-dice-2').innerText = d2;
@@ -664,7 +669,7 @@
             `;
 
             document.getElementById('g2-target-status').innerHTML = `
-                완성된 분수 <span class="font-extrabold text-amber-900">${num} / ${den}</span> 은(는) 무엇일까요? 아래 버튼을 눌러 선택하세요!
+                완성된 분수 <span class="font-black text-amber-900">${num} / ${den}</span> 은(는) 무엇일까요? 아래 버튼을 눌러 선택하세요!
             `;
 
             document.getElementById('g2-roll-btn').classList.add('hidden');
@@ -747,7 +752,6 @@
             g3TargetGroups = Math.floor(Math.random() * (g3TotalGroups - 1)) + 1;
             g3SelectedGroups = new Array(g3TotalGroups).fill(false);
 
-            // 목표 분수 위아래 표기 반영
             document.getElementById('g3-target-display').innerHTML = `
                 <span class="fraction-line">
                     <span class="fraction-num">${g3TargetGroups}</span>
@@ -764,13 +768,13 @@
             area.innerHTML = '';
             for (let g = 0; g < g3TotalGroups; g++) {
                 let box = document.createElement('div');
-                box.className = `p-3 rounded-2xl border-2 flex flex-wrap items-center justify-center gap-1 cursor-pointer transition transform hover:scale-105 ${g3SelectedGroups[g] ? 'bg-emerald-100 border-emerald-500 shadow-md' : 'bg-amber-50 border-amber-300'}`;
-                box.style.width = '120px';
-                box.style.minHeight = '70px';
+                box.className = `p-2 rounded-xl border-2 flex flex-wrap items-center justify-center gap-1 cursor-pointer transition transform hover:scale-105 shadow-sm ${g3SelectedGroups[g] ? 'bg-emerald-100 border-emerald-500 shadow-md' : 'bg-amber-50 border-amber-300'}`;
+                box.style.width = '105px';
+                box.style.minHeight = '65px';
 
                 for (let i = 0; i < g3GroupSize; i++) {
                     let p = document.createElement('span');
-                    p.className = "text-xl select-none";
+                    p.className = "text-lg select-none";
                     p.innerText = '🎃';
                     box.appendChild(p);
                 }
@@ -833,12 +837,12 @@
 
             for (let b = 0; b < g4TotalBars; b++) {
                 let barRow = document.createElement('div');
-                barRow.className = "w-full flex h-12 bg-amber-50 rounded-xl overflow-hidden border-2 border-amber-300 shadow-inner";
+                barRow.className = "w-full flex h-10 bg-amber-50 rounded-lg overflow-hidden border border-amber-300 shadow-inner";
 
                 for (let s = 0; s < g4Denom; s++) {
                     let seg = document.createElement('div');
                     seg.className = "flex-1 h-full border-r border-amber-300 transition-colors duration-200 cursor-pointer";
-                    seg.style.backgroundColor = g4BarGrid[b][s] ? "rgba(56, 189, 248, 0.65)" : "transparent";
+                    seg.style.backgroundColor = g4BarGrid[b][s] ? "rgba(56, 189, 248, 0.7)" : "transparent";
                     
                     if (g4BarGrid[b][s]) totalColored++;
 
