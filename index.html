@@ -574,20 +574,29 @@
         function checkGame1() {
             let userDen = parseInt(g1InputDenom);
             let userNum = parseInt(g1InputNumer);
+            let coloredCircleCount = g1CircleFilled.filter(Boolean).length;
+            let coloredBarCount = g1BarFilled.filter(Boolean).length;
 
             if (isNaN(userDen) || isNaN(userNum)) {
                 showModal('입력 확인', '분모와 분자에 숫자를 모두 입력해 주세요!', '🤔');
                 return;
             }
 
-            if (userDen === g1Denom && userNum === g1Numer) {
+            let numCorrect = (userDen === g1Denom && userNum === g1Numer);
+            let colorCorrect = (coloredCircleCount === g1Numer && coloredBarCount === g1Numer);
+
+            if (numCorrect && colorCorrect) {
                 g1Score++;
                 document.getElementById('game1-score').innerText = g1Score;
-                showModal('정답입니다! 🎉', `분수 <span class="fraction-line"><span class="fraction-num">${g1Numer}</span><span class="fraction-den">${g1Denom}</span></span>을 올바르게 완성했습니다!`, '🎨', () => {
+                showModal('정답입니다! 🎉', `분수 <span class="fraction-line"><span class="fraction-num">${g1Numer}</span><span class="fraction-den">${g1Denom}</span></span>과 색칠한 조각 모두 정확합니다!`, '🎨', () => {
                     initGame1();
                 });
+            } else if (!numCorrect && colorCorrect) {
+                showModal('숫자를 다시 확인해 보세요! 🤔', `그림에 색칠된 조각 수는 맞지만, 입력하신 분수 숫자(분모/분자)가 목표 분수와 달라요. 다시 확인하고 도전해 보세요!`, '💡');
+            } else if (numCorrect && !colorCorrect) {
+                showModal('색칠하기를 다시 확인해 보세요! 🎨', `입력하신 분수 숫자는 맞지만, 원형과 막대 그림에 색칠된 조각 수(현재 원 ${coloredCircleCount}개, 막대 ${coloredBarCount}개)가 목표 분자의 개수와 일치하지 않아요!`, '💡');
             } else {
-                showModal('다시 확인해 보세요! 🤔', `제시된 분수와 입력하신 숫자가 일치하는지 확인해 주세요.`, '💡');
+                showModal('다시 확인해 볼까요? 🤔', `입력하신 분수 숫자와 그림에 색칠된 조각 수 모두 목표 분수와 일치하지 않습니다. 다시 확인하고 도전해 보세요!`, '💡');
             }
         }
 
